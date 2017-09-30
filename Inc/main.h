@@ -41,7 +41,8 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
+#include "panel.h"
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -50,6 +51,12 @@
 #define B1_GPIO_Port GPIOC
 #define LCD_CS_Pin GPIO_PIN_2
 #define LCD_CS_GPIO_Port GPIOC
+#define ENC_SW_Pin GPIO_PIN_3
+#define ENC_SW_GPIO_Port GPIOC
+#define ENC_PULSE_Pin GPIO_PIN_0
+#define ENC_PULSE_GPIO_Port GPIOA
+#define ENC_DIR_Pin GPIO_PIN_1
+#define ENC_DIR_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
@@ -72,7 +79,9 @@
 #define LCD_RESET_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+extern uint16_t enc_data;
+extern uint16_t enc_update;
+extern uint16_t t_update;
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

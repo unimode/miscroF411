@@ -44,18 +44,30 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "st7735.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint16_t enc_update = 1;
+uint16_t t_update = 1;
+uint16_t enc_data = 5000;
+Disp7Type henc ={
+  			  .x = 50,
+  			  .y = 30,
+  			  .fcolor = LCD_RED,
+  			  .bcolor = 0x0,
+  			  .size = 1,
+  			  .digits = 4,
+  			  .data = 1234
+  	  };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_NVIC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -94,19 +106,43 @@ int main(void)
   MX_DMA_Init();
   MX_SPI3_Init();
   MX_TIM2_Init();
+  MX_TIM4_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
 
   /* USER CODE BEGIN 2 */
   st7735Init();
   Test();
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim4);
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  //htim2.Instance->CNT = 10;
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+
+	  //if(enc_update){
+	//	  enc_update = 0;
+		  enc_data = htim2.Instance->CNT;
+		  disp7Update(&henc, enc_data);
+	//  }
+
+
+	  if(t_update){
+		  st7735FillRect(90, 110, 20, 20, LCD_RED);
+	  }
+	  else{
+		  st7735FillRect(90, 110, 20, 20, LCD_BLUE);
+	  }
+
+
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	  HAL_Delay(200);
   }
@@ -168,6 +204,18 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/** NVIC Configuration
+*/
+static void MX_NVIC_Init(void)
+{
+  /* TIM2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM2_IRQn);
+  /* TIM4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM4_IRQn);
 }
 
 /* USER CODE BEGIN 4 */

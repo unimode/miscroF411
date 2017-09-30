@@ -34,7 +34,8 @@ static void sendCmd(uint8_t data)
 	setA0(0);
 	//HAL_SPI_Transmit_DMA(&hspi3, &t, 1);
 	HAL_SPI_Transmit(&hspi3, &t, 1, 5000);
-	while(hspi3.Instance->SR  & SPI_SR_BSY);
+	//while(hspi3.Instance->SR  & SPI_SR_BSY);
+	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 }
 
 static void sendData(uint8_t data)
@@ -43,7 +44,8 @@ static void sendData(uint8_t data)
 	setA0(1);
 	//HAL_SPI_Transmit_DMA(&hspi3, &t, 1);
 	HAL_SPI_Transmit(&hspi3, &t, 1, 5000);
-	while(hspi3.Instance->SR  & SPI_SR_BSY);
+	//while(hspi3.Instance->SR  & SPI_SR_BSY);
+	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 }
 
 void st7735Init(void)
@@ -147,9 +149,10 @@ void st7735FillRect2(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint16_t co
 	hspi3.Init.DataSize = SPI_DATASIZE_16BIT;
 	HAL_SPI_Init(&hspi3);
 
-	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
+	//while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
 	HAL_StatusTypeDef result = HAL_SPI_Transmit_DMA(&hspi3, (uint8_t*)(&color), 2*(x2-x1+1)*(y2-y1+1));
-	while(hspi3.Instance->SR  & SPI_SR_BSY);
+	//while(hspi3.Instance->SR  & SPI_SR_BSY);
+	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 
 
 	HAL_SPI_DeInit(&hspi3);
@@ -189,18 +192,23 @@ void st7735DrawSymbol(uint8_t x, uint8_t y, uint8_t chr, uint16_t charColor, uin
 				unsigned int color;
 				if(chl & 0x80) color=charColor; else color=bkgColor;
 				chl = chl<<1;
-				while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
+				//while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
 				HAL_SPI_Transmit(&hspi3, &color, 1, 5000);
-				while(hspi3.Instance->SR  & SPI_SR_BSY);
+				//while(hspi3.Instance->SR  & SPI_SR_BSY);
+				while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 			}
 		}
 	}
-
+/*
 	for (j=0;j<13;j++) {
-		while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
+		//while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_RESET);
 		HAL_SPI_Transmit(&hspi3, &bkgColor, 1, 5000);
-		while(hspi3.Instance->SR  & SPI_SR_BSY);
+		//while(hspi3.Instance->SR  & SPI_SR_BSY);
+		while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 	}
+*/
+	HAL_SPI_Transmit_DMA(&hspi3, (uint8_t*)(&bkgColor), 13);
+	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
 
 	HAL_SPI_DeInit(&hspi3);
 	hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
