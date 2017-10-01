@@ -51,21 +51,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint16_t enc_update = 1;
-uint16_t t_update = 1;
-uint16_t enc_data = 0;
-uint16_t enc_enter_update = 0;
-uint16_t enc_enter_data   = 0;
-char	 tmp_str[64];
-Disp7Type henc ={
-  			  .x = 50,
-  			  .y = 30,
-  			  .fcolor = LCD_RED,
-  			  .bcolor = 0x0,
-  			  .size = 1,
-  			  .digits = 4,
-  			  .data = 1234
-  	  };
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,7 +102,6 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   st7735Init();
-  Test();
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim4);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
@@ -124,31 +109,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //htim2.Instance->CNT = 10;
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
-	  if(enc_update){
-		  enc_update = 0;
-		  disp7Update(&henc, enc_data);
-	  }
-
-	  //if(t_update){
-	  //	  st7735FillRect(90, 110, 20, 20, LCD_RED);
-	  //}
-	  //else{
-	  //	  st7735FillRect(90, 110, 20, 20, LCD_BLUE);
-	  //}
-	  if(enc_enter_update){
-		  enc_enter_update = 0;
-		  st7735DrawText(20, 110, tmp_str, 0x0000, 0);
-		  sprintf(tmp_str, "%d", enc_data);
-		  st7735DrawText(20, 110, tmp_str, LCD_BLUE, 0);
-	  }
-
+	  processGUI();
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	  HAL_Delay(200);
   }

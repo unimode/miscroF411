@@ -76,8 +76,8 @@ void SysTick_Handler(void)
 void EXTI3_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI3_IRQn 0 */
-	enc_enter_data		= enc_data;
-	enc_enter_update	= 1;
+  inputs_data.enc_enter_value	= inputs_data.enc_value;
+  inputs_data.enc_sw			= 1;
   /* USER CODE END EXTI3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
@@ -104,20 +104,18 @@ void DMA1_Stream5_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-
-  enc_update = 1;
-  volatile uint8_t test = htim2.Instance->CR1 & 16;
-
+  inputs_data.enc_update	= 1;
+  inputs_data.enc_dir		= htim2.Instance->CR1 & 16; // DIR
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-  if(test){
-	  if(enc_data >0 )
-		  enc_data--;
+  if(inputs_data.enc_dir){
+	  if(inputs_data.enc_value >0 )
+		  inputs_data.enc_value--;
   }
   else{
-	  if(enc_data < 32)
-		  enc_data++;
+	  if(inputs_data.enc_value < 32)
+		  inputs_data.enc_value++;
   }
 
   /* USER CODE END TIM2_IRQn 1 */
@@ -129,10 +127,7 @@ void TIM2_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	//if(t_update)
-	//	t_update = 0;
-	//else
-	//	t_update = 1;
+
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */

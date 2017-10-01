@@ -9,8 +9,8 @@
 #define CONFIG_H_
 
 #define EMU_DEVICE
-#define ENU_HOST
-#define EMU_DRAW_HOST
+//#define EMU_HOST
+//#define EMU_DRAW_HOST
 
 
 #endif /* CONFIG_H_ */

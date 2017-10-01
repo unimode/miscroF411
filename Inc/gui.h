@@ -16,7 +16,9 @@
 typedef enum{
 	TYPE_DRAW_PIXEL,
 	TYPE_FILL_RECT,
-	TYPE_DISP7
+	TYPE_DISP7,
+	TYPE_DRAW_TEXT,
+	TYPE_INPUTS
 } CmdType;
 
 typedef struct{
@@ -38,19 +40,37 @@ typedef struct{
 	uint16_t	data;
 } CmdDisp7;
 
+#define CMD_TEXT_MAX_DATA_SIZE	32
+typedef struct{
+	uint8_t x;
+	uint8_t y;
+	uint8_t str[CMD_TEXT_MAX_DATA_SIZE];
+	uint16_t charColor;
+	uint16_t bkgColor;
+}CmdText;
+
 typedef struct{
 	uint8_t		enc_value;
 	uint8_t		enc_dir;
-	uint8_t		enc_sw;
+	uint8_t		enc_sw; // 1 - if clicked
+	uint16_t	enc_enter_value;
 	uint8_t		enc_update;
-
 } InputsData;
 
 typedef struct{
 	CmdType		cmd_type;
-	uint8_t		flag;
+	uint8_t		flags;
+	union{
+		CmdDrawPixel	drawpix;
+		CmdFillRect		fillrect;
+		CmdDisp7		disp7;
+		CmdText			text;
+		InputsData		iputs;
+	};
 } Host2DevCmd;
 
+extern volatile InputsData inputs_data;
+void processGUI(void);
 void drawPanel(void);
 void drawInfoLine(void);
 uint8_t callHMenu(void);

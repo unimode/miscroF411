@@ -80,11 +80,7 @@
 #define LCD_RESET_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-extern uint16_t enc_data;
-extern uint16_t enc_update;
-extern uint16_t t_update;
-extern uint16_t enc_enter_update;
-extern uint16_t enc_enter_data;
+
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

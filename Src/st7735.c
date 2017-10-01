@@ -216,7 +216,8 @@ void st7735DrawSymbol(uint8_t x, uint8_t y, uint8_t chr, uint16_t charColor, uin
 
 }
 
-void st7735DrawText(uint8_t x, uint8_t y, const uint8_t str[], uint16_t charColor, uint16_t bkgColor) {
+void st7735DrawText(uint8_t x, uint8_t y, const uint8_t str[], uint16_t charColor, uint16_t bkgColor)
+{
 
 	while (*str!=0) {
 		st7735DrawSymbol(x, y, *str, charColor, bkgColor);
