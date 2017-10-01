@@ -4,7 +4,7 @@
  *  Created on: Sep 30, 2017
  *      Author: paramra
  */
-#include "panel.h"
+#include <gui.h>
 
 void drawPanel(void)
 {

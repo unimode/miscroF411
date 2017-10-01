@@ -53,7 +53,10 @@
 /* Private variables ---------------------------------------------------------*/
 uint16_t enc_update = 1;
 uint16_t t_update = 1;
-uint16_t enc_data = 5000;
+uint16_t enc_data = 0;
+uint16_t enc_enter_update = 0;
+uint16_t enc_enter_data   = 0;
+char	 tmp_str[64];
 Disp7Type henc ={
   			  .x = 50,
   			  .y = 30,
@@ -128,20 +131,23 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-	  //if(enc_update){
-	//	  enc_update = 0;
-		  enc_data = htim2.Instance->CNT;
+	  if(enc_update){
+		  enc_update = 0;
 		  disp7Update(&henc, enc_data);
-	//  }
-
-
-	  if(t_update){
-		  st7735FillRect(90, 110, 20, 20, LCD_RED);
-	  }
-	  else{
-		  st7735FillRect(90, 110, 20, 20, LCD_BLUE);
 	  }
 
+	  //if(t_update){
+	  //	  st7735FillRect(90, 110, 20, 20, LCD_RED);
+	  //}
+	  //else{
+	  //	  st7735FillRect(90, 110, 20, 20, LCD_BLUE);
+	  //}
+	  if(enc_enter_update){
+		  enc_enter_update = 0;
+		  st7735DrawText(20, 110, tmp_str, 0x0000, 0);
+		  sprintf(tmp_str, "%d", enc_data);
+		  st7735DrawText(20, 110, tmp_str, LCD_BLUE, 0);
+	  }
 
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	  HAL_Delay(200);
@@ -216,6 +222,9 @@ static void MX_NVIC_Init(void)
   /* TIM4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(TIM4_IRQn);
+  /* EXTI3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 /* USER CODE BEGIN 4 */

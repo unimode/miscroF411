@@ -41,8 +41,8 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
+#include <gui.h>
 #include <stdint.h>
-#include "panel.h"
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -53,6 +53,7 @@
 #define LCD_CS_GPIO_Port GPIOC
 #define ENC_SW_Pin GPIO_PIN_3
 #define ENC_SW_GPIO_Port GPIOC
+#define ENC_SW_EXTI_IRQn EXTI3_IRQn
 #define ENC_PULSE_Pin GPIO_PIN_0
 #define ENC_PULSE_GPIO_Port GPIOA
 #define ENC_DIR_Pin GPIO_PIN_1
@@ -82,6 +83,8 @@
 extern uint16_t enc_data;
 extern uint16_t enc_update;
 extern uint16_t t_update;
+extern uint16_t enc_enter_update;
+extern uint16_t enc_enter_data;
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

@@ -71,12 +71,26 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles EXTI line3 interrupt.
+*/
+void EXTI3_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI3_IRQn 0 */
+	enc_enter_data		= enc_data;
+	enc_enter_update	= 1;
+  /* USER CODE END EXTI3_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+  /* USER CODE BEGIN EXTI3_IRQn 1 */
+
+  /* USER CODE END EXTI3_IRQn 1 */
+}
+
+/**
 * @brief This function handles DMA1 stream5 global interrupt.
 */
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
@@ -87,25 +101,25 @@ void DMA1_Stream5_IRQHandler(void)
 /**
 * @brief This function handles TIM2 global interrupt.
 */
-static volatile uint16_t cnt = 0;
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
-  //cnt = htim2.Instance->CNT;
-  enc_update = 1+cnt;
-  if(t_update)
-	t_update = 0;
-  else
-	t_update = 1;
+  enc_update = 1;
+  volatile uint8_t test = htim2.Instance->CR1 & 16;
+
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-//  cnt = htim2.Instance->CNT;
-//  if(htim2.Instance->CNT == 32)
-//	  htim2.Instance->CNT = 0;
-//  if(htim2.Instance->CNT == 0 )
-//  	  htim2.Instance->CNT = 32;
+  if(test){
+	  if(enc_data >0 )
+		  enc_data--;
+  }
+  else{
+	  if(enc_data < 32)
+		  enc_data++;
+  }
+
   /* USER CODE END TIM2_IRQn 1 */
 }
 
