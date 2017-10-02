@@ -14,8 +14,10 @@
 #include <stdint.h>
 
 typedef enum{
+	TYPE_NONE = 0,	// use for initialization only
 	TYPE_DRAW_PIXEL,
 	TYPE_FILL_RECT,
+	TYPE_DRAW_RECT,
 	TYPE_DISP7,
 	TYPE_DRAW_TEXT,
 	TYPE_INPUTS
@@ -34,6 +36,15 @@ typedef struct{
 	uint8_t height;
 	uint16_t color;
 } CmdFillRect;
+
+typedef struct{
+	uint8_t x;
+	uint8_t y;
+	uint8_t width;
+	uint8_t height;
+	uint16_t color;
+	uint8_t thick;
+} CmdDrawRect;
 
 typedef struct{
 	Disp7Type	hdisp;
@@ -62,6 +73,7 @@ typedef struct{
 	uint8_t		flags;
 	union{
 		CmdDrawPixel	drawpix;
+		CmdDrawRect		drawrect;
 		CmdFillRect		fillrect;
 		CmdDisp7		disp7;
 		CmdText			text;

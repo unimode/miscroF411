@@ -32,8 +32,8 @@ void disp7Update(Disp7Type *hdisp, uint16_t data);
 void st7735Init(void);
 void st7735Test(void);
 void st7735DrawPixel(uint8_t x, uint8_t y, uint16_t color);
-//void st7735FillRect(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint16_t color);
+void st7735DrawRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color, uint8_t thick);
 void st7735FillRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color);
 void st7735DrawText(uint8_t x, uint8_t y, const uint8_t str[], uint16_t charColor, uint16_t bkgColor);
-//void st7735FillRect();
+
 #endif /* LCDST7735_H_ */

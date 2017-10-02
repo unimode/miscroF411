@@ -41,6 +41,7 @@
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -96,6 +97,7 @@ int main(void)
   MX_SPI3_Init();
   MX_TIM2_Init();
   MX_TIM4_Init();
+  MX_USART2_UART_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
