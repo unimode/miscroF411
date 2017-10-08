@@ -11,6 +11,7 @@
 #include "font7x15.h"
 #include "st7735.h"
 
+extern DMA_HandleTypeDef hdma_spi3_tx;
 
 
 static void setCS(uint8_t value)
@@ -73,7 +74,7 @@ void st7735Init(void)
 
     // direction and color
     sendCmd(0x36);
-    sendData(0x1C); // RGB
+    sendData(0x14); // RGB
     //sendData(0x1C); // BGR
 
     sendCmd(0x29); // turn on display
@@ -288,4 +289,40 @@ void disp7Update(Disp7Type *hdisp, uint16_t data)
 		drawDigit(hdisp->x, hdisp->y+(dy+6*ds)*(hdisp->digits-i-1), hdisp->bcolor, hdisp->size, 8);
 		drawDigit(hdisp->x, hdisp->y+(dy+6*ds)*(hdisp->digits-i-1), hdisp->fcolor, hdisp->size, a*10/div);
 	}
+}
+
+void st7735DrawImage(uint8_t x, uint8_t y, GIMPImage *image)
+{
+
+	//st7735SetRect(x, y, x+image->width-1, y+image->height-1);
+	st7735SetRect(x, y, x+image->height-1, y+image->width-1); // width <-> height
+	//st7735SetRect(0, 0, 127, 159);
+
+	HAL_SPI_DeInit(&hspi3);
+	hspi3.Init.DataSize = SPI_DATASIZE_16BIT;
+	HAL_SPI_Init(&hspi3);
+
+	// adjust DMA for image mode
+	HAL_DMA_DeInit(&hdma_spi3_tx);
+	hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
+	HAL_DMA_Init(&hdma_spi3_tx);
+
+
+	// send image to display
+	sendCmd(0x2C);
+	setA0(1);
+
+	HAL_StatusTypeDef result = HAL_SPI_Transmit_DMA(&hspi3, image->pixel_data, image->width*image->height);
+	while(HAL_SPI_GetState(&hspi3) == HAL_SPI_STATE_BUSY_TX);
+
+	HAL_SPI_DeInit(&hspi3);
+	hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+	HAL_SPI_Init(&hspi3);
+
+	// restore DMA for fill mode
+
+	HAL_DMA_DeInit(&hdma_spi3_tx);
+	hdma_spi3_tx.Init.MemInc = DMA_MINC_DISABLE;
+	HAL_DMA_Init(&hdma_spi3_tx);
+
 }

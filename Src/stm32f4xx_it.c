@@ -158,7 +158,7 @@ void TIM4_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+	volatile uint32_t n = huart2.RxXferCount;
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
@@ -172,7 +172,8 @@ void USART2_IRQHandler(void)
 void DMA1_Stream7_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream7_IRQn 0 */
-
+	volatile uint32_t n = huart2.RxXferCount;
+	h2dev_ready = 1;
   /* USER CODE END DMA1_Stream7_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart2_rx);
   /* USER CODE BEGIN DMA1_Stream7_IRQn 1 */

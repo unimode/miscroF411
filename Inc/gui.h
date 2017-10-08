@@ -8,10 +8,17 @@
 #ifndef __PANEL_H__
 #define __PANEL_H__
 
-#include "main.h"
-#include "config.h"
-#include "st7735.h"
 #include <stdint.h>
+#include "st7735.h"
+
+#include "config.h"
+
+#ifdef EMU_DEVICE
+
+//#include "main.h"
+
+
+#endif
 
 typedef enum{
 	TYPE_NONE = 0,	// use for initialization only
@@ -23,6 +30,7 @@ typedef enum{
 	TYPE_INPUTS
 } CmdType;
 
+#pragma pack(push, 1)
 typedef struct{
 	uint8_t x;
 	uint8_t y;
@@ -69,7 +77,7 @@ typedef struct{
 } InputsData;
 
 typedef struct{
-	CmdType		cmd_type;
+	uint8_t		cmd_type;
 	uint8_t		flags;
 	union{
 		CmdDrawPixel	drawpix;
@@ -80,12 +88,15 @@ typedef struct{
 		InputsData		iputs;
 	};
 } Host2DevCmd;
+#pragma pack(pop)
 
 extern volatile InputsData inputs_data;
+extern volatile uint8_t	h2dev_ready;
 void processGUI(void);
 void drawPanel(void);
 void drawInfoLine(void);
 uint8_t callHMenu(void);
+
 
 
 #endif /* PANEL_H_ */

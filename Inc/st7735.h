@@ -25,6 +25,14 @@ typedef struct {
 	uint16_t data;
 } Disp7Type;
 
+typedef struct {
+  unsigned int 	 width;
+  unsigned int 	 height;
+  unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */
+  unsigned char	 pixel_data[];
+} GIMPImage;
+
+
 int  disp7Init(Disp7Type *hdisp, uint8_t x, uint8_t y, uint16_t fcolor,
 				uint16_t bcolor, uint8_t size, uint16_t data);
 void disp7Update(Disp7Type *hdisp, uint16_t data);
@@ -35,5 +43,6 @@ void st7735DrawPixel(uint8_t x, uint8_t y, uint16_t color);
 void st7735DrawRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color, uint8_t thick);
 void st7735FillRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color);
 void st7735DrawText(uint8_t x, uint8_t y, const uint8_t str[], uint16_t charColor, uint16_t bkgColor);
+void st7735DrawImage(uint8_t x, uint8_t y, GIMPImage *image);
 
 #endif /* LCDST7735_H_ */

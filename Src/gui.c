@@ -4,16 +4,70 @@
  *  Created on: Sep 30, 2017
  *      Author: paramra
  */
+
 #include "gui.h"
+
+// host
+//#define EMU_HOST
+//#undef EMU_DEVICE
+//#undef EMU_DRAW_HOST
+
+// device
+#undef EMU_HOST
+#define EMU_DRAW_HOST
+#define EMU_DEVICE
+
+
+#ifdef EMU_DEVICE
 #include "dma.h"
 #include "usart.h"
 #include "spi.h"
 #include <string.h>
+#endif
 
+#ifdef EMU_HOST
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <termios.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdint.h>
+
+#endif
+
+extern int fd; /* Файловый дескриптор для порта */
+extern char buf[512];/*размер зависит от размера строки принимаемых данных*/
+extern int outa;
+extern int iIn;
+extern char rxbuf[512];
+extern Host2DevCmd	cmd;
+extern InputsData	inputs;
+
+
+const GIMPImage test_img1 = {
+		.width	= 4,
+		.height	= 4,
+		.bytes_per_pixel = 2,
+		.pixel_data = {	0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF,
+						0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF,
+						0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF,
+						0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF
+						}};
+
+extern const GIMPImage front_panel_img;
+extern const GIMPImage mars_img;
+extern const GIMPImage tu95_img;
+extern const GIMPImage marsx_img;
 
 void sendCmd(Host2DevCmd *cmd)
 {
 #ifdef EMU_HOST
+	uint32_t iIn = write(fd, cmd, sizeof(Host2DevCmd));
+	uint32_t n = read(fd, &inputs, sizeof(InputsData));
 #endif
 }
 
@@ -63,6 +117,7 @@ void wrap_st7735DrawRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, ui
 {
 #ifdef EMU_DEVICE
 	st7735DrawRect(x, y, width, height, color, thick);
+#else
 	Host2DevCmd cmd;
 	cmd.cmd_type		= TYPE_DRAW_RECT;
 	cmd.drawrect.x		= x;
@@ -72,9 +127,6 @@ void wrap_st7735DrawRect(uint8_t x, uint8_t y, uint8_t width, uint8_t height, ui
 	cmd.drawrect.color	= color;
 	cmd.drawrect.thick	= thick;
 	sendCmd(&cmd);
-#else
-
-
 #endif
 }
 
@@ -90,6 +142,7 @@ void wrap_st7735DrawText(uint8_t x, uint8_t y, const uint8_t str[], uint16_t cha
 	strcpy(cmd.text.str, str);
 	cmd.text.charColor	= charColor;
 	cmd.text.bkgColor	= bkgColor;
+	sendCmd(&cmd);
 #endif
 }
 //---------------------------------------------------------------------------------------------------------
@@ -113,7 +166,8 @@ Disp7Type henc ={
 void drawPanel(void)
 {
 	wrap_st7735FillRect(0, 0, 128, 160, 0);
-	wrap_st7735DrawRect(0, 0, 128, 160, LCD_BLUE, 1);
+	wrap_st7735DrawRect(0, 0, 128, 160, LCD_BLUE,1);
+	wrap_st7735DrawText(35, 35, "TEST", LCD_GREEN, LCD_RED);
 }
 
 
@@ -123,7 +177,6 @@ void processUART(void)
 	if(h2dev_ready){
 		h2dev_ready = 0;
 		// translate command from host
-		HAL_UART_Receive_DMA(&huart2, (uint8_t *)&host2dev_cmd, sizeof(Host2DevCmd));
 		switch(host2dev_cmd.cmd_type){
 			case TYPE_NONE:
 			break;
@@ -158,7 +211,7 @@ void processUART(void)
 			case TYPE_INPUTS:
 			break;
 		}
-
+		HAL_UART_Receive_DMA(&huart2, (uint8_t *)&host2dev_cmd, sizeof(Host2DevCmd));
 		// reply inputs state
 		if(host2dev_cmd.cmd_type != TYPE_NONE){ //in first call don't send reply to host
 			HAL_UART_Transmit_DMA(&huart2, (uint8_t*)&inputs_data, sizeof(inputs_data));
@@ -181,6 +234,9 @@ void processGUI(void)
 		st7735FillRect(0, 0, 128, 160, 0);
 		st7735DrawRect(0, 0, 128, 160, LCD_YELLOW, 1);
 		st7735DrawText(57, 15, "WAITING A HOST...", LCD_RED, 0);
+		//st7735DrawImage(10, 10, &test_img1);
+		st7735DrawImage(0, 0, &front_panel_img);
+		//st7735DrawImage(0, 0, &mars_img);
 		/*int x,y;
 		for(x=0; x<16; x++)
 			st7735FillRect(8*x, 0, 1, 160, LCD_YELLOW);
@@ -188,6 +244,30 @@ void processGUI(void)
 			st7735FillRect(0, 10*y, 128, 1, LCD_YELLOW);
 			*/
 	}
+	//!!! DEMO TEST !!!
+	if(inputs_data.enc_sw){
+		static int imgcnt = 0;
+		inputs_data.enc_sw = 0;
+		if(imgcnt == 0){
+			st7735DrawImage(0, 0, &mars_img);
+		}
+		else if(imgcnt == 1){
+			st7735DrawImage(0, 0, &front_panel_img);
+		}
+		else if(imgcnt == 2){
+			st7735DrawImage(0, 0, &tu95_img);
+		}
+		else if(imgcnt == 3){
+			st7735DrawImage(0, 0, &marsx_img);
+		}
+		if(imgcnt < 3){
+			imgcnt++;
+		}
+		else{
+			imgcnt = 0;
+		}
+	}
+	//!!!---------- !!!
 	processUART();
 #else // host, device drawing
 	if(firstEntry){

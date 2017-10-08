@@ -41,7 +41,7 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-#include <gui.h>
+#include "gui.h"
 #include <stdint.h>
 /* USER CODE END Includes */
 
