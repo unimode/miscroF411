@@ -85,7 +85,7 @@ typedef struct{
 		CmdFillRect		fillrect;
 		CmdDisp7		disp7;
 		CmdText			text;
-		InputsData		iputs;
+		InputsData		inputs;
 	};
 } Host2DevCmd;
 #pragma pack(pop)

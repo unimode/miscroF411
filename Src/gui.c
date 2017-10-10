@@ -8,14 +8,14 @@
 #include "gui.h"
 
 // host
-//#define EMU_HOST
-//#undef EMU_DEVICE
-//#undef EMU_DRAW_HOST
+#define EMU_HOST
+#undef EMU_DEVICE
+#undef EMU_DRAW_HOST
 
 // device
-#undef EMU_HOST
-#define EMU_DRAW_HOST
-#define EMU_DEVICE
+//#undef EMU_HOST
+//#define EMU_DRAW_HOST
+//#define EMU_DEVICE
 
 
 #ifdef EMU_DEVICE
@@ -45,7 +45,7 @@ extern int outa;
 extern int iIn;
 extern char rxbuf[512];
 extern Host2DevCmd	cmd;
-extern InputsData	inputs;
+//extern InputsData	inputs;
 
 
 const GIMPImage test_img1 = {
@@ -67,7 +67,7 @@ void sendCmd(Host2DevCmd *cmd)
 {
 #ifdef EMU_HOST
 	uint32_t iIn = write(fd, cmd, sizeof(Host2DevCmd));
-	uint32_t n = read(fd, &inputs, sizeof(InputsData));
+	uint32_t n = read(fd, &inputs_data, sizeof(InputsData));
 #endif
 }
 
@@ -209,6 +209,7 @@ void processUART(void)
 			break;
 
 			case TYPE_INPUTS:
+				inputs_data = host2dev_cmd.inputs; // get processed flags from host
 			break;
 		}
 		HAL_UART_Receive_DMA(&huart2, (uint8_t *)&host2dev_cmd, sizeof(Host2DevCmd));
@@ -278,7 +279,16 @@ void processGUI(void)
 	// check encoder rotation
 	if(inputs_data.enc_update){
 		inputs_data.enc_update = 0;
-		wrap_disp7Update(&henc, inputs_data.enc_value);
+		//wrap_disp7Update(&henc, inputs_data.enc_value);
+		char ttt[16];
+		sprintf(ttt, "%4d", inputs_data.enc_value);
+		wrap_st7735DrawText(35, 35, "    ", LCD_GREEN, LCD_RED);
+		wrap_st7735DrawText(35, 35, ttt, LCD_GREEN, LCD_RED);
+		static int n =0;
+		printf("trace report: n=%d upd=%d cnt=%d\n", n++, inputs_data.enc_update, inputs_data.enc_value);
+		host2dev_cmd.cmd_type = TYPE_INPUTS;
+		host2dev_cmd.inputs = inputs_data;
+		sendCmd(&host2dev_cmd);
 	}
 
 	// check encoder switch
@@ -288,6 +298,7 @@ void processGUI(void)
 		sprintf(tmp_str, "%d", inputs_data.enc_enter_value);
 		wrap_st7735DrawText(20, 110, tmp_str, LCD_BLUE, 0);
 	}
+
 #endif
 }
 
