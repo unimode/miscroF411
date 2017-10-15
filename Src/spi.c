@@ -82,7 +82,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   /* USER CODE BEGIN SPI3_MspInit 0 */
 
   /* USER CODE END SPI3_MspInit 0 */
-    /* Peripheral clock enable */
+    /* SPI3 clock enable */
     __HAL_RCC_SPI3_CLK_ENABLE();
   
     /**SPI3 GPIO Configuration    

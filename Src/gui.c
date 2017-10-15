@@ -8,12 +8,12 @@
 #include "gui.h"
 
 // host
-#define EMU_HOST
-#undef EMU_DEVICE
-#undef EMU_DRAW_HOST
+//#define EMU_HOST
+//#undef EMU_DEVICE
+//#undef EMU_DRAW_HOST
 
 // device
-//#undef EMU_HOST
+#undef EMU_HOST
 //#define EMU_DRAW_HOST
 //#define EMU_DEVICE
 
@@ -217,6 +217,7 @@ void processUART(void)
 		if(host2dev_cmd.cmd_type != TYPE_NONE){ //in first call don't send reply to host
 			HAL_UART_Transmit_DMA(&huart2, (uint8_t*)&inputs_data, sizeof(inputs_data));
 		}
+
 	}
 #endif
 }
@@ -268,6 +269,17 @@ void processGUI(void)
 			imgcnt = 0;
 		}
 	}
+	if(inputs_data.enc_update){
+		inputs_data.enc_update = 0;
+			//sendCmd(&host2dev_cmd);
+			//char ttt[16];
+			//sprintf(ttt, "%4d", inputs_data.enc_value);
+			//wrap_st7735DrawText(35, 35, "    ", LCD_GREEN, LCD_RED);
+			//wrap_st7735DrawText(35, 35, ttt, LCD_GREEN, LCD_RED);
+
+		disp7Update(&henc, inputs_data.enc_value);
+
+		}
 	//!!!---------- !!!
 	processUART();
 #else // host, device drawing
@@ -276,19 +288,22 @@ void processGUI(void)
 		drawPanel();
 	}
 
+	host2dev_cmd.cmd_type = TYPE_INPUTS;
+	host2dev_cmd.inputs = inputs_data;
+	sendCmd(&host2dev_cmd);
 	// check encoder rotation
 	if(inputs_data.enc_update){
-		inputs_data.enc_update = 0;
-		//wrap_disp7Update(&henc, inputs_data.enc_value);
-		char ttt[16];
-		sprintf(ttt, "%4d", inputs_data.enc_value);
-		wrap_st7735DrawText(35, 35, "    ", LCD_GREEN, LCD_RED);
-		wrap_st7735DrawText(35, 35, ttt, LCD_GREEN, LCD_RED);
-		static int n =0;
-		printf("trace report: n=%d upd=%d cnt=%d\n", n++, inputs_data.enc_update, inputs_data.enc_value);
 		host2dev_cmd.cmd_type = TYPE_INPUTS;
 		host2dev_cmd.inputs = inputs_data;
-		sendCmd(&host2dev_cmd);
+		inputs_data.enc_update = 0;
+		//sendCmd(&host2dev_cmd);
+		//char ttt[16];
+		//sprintf(ttt, "%4d", inputs_data.enc_value);
+		//wrap_st7735DrawText(35, 35, "    ", LCD_GREEN, LCD_RED);
+		//wrap_st7735DrawText(35, 35, ttt, LCD_GREEN, LCD_RED);
+		static int n=0;
+		printf("trace report: n=%d upd=%d cnt=%d\n", n++, inputs_data.enc_update, inputs_data.enc_value);
+
 	}
 
 	// check encoder switch
@@ -300,7 +315,7 @@ void processGUI(void)
 	}
 
 #endif
-}
+	}
 
 
 
